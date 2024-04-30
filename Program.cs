@@ -4,21 +4,32 @@ class Program
 {
     static readonly char[,] board = new char[3, 3];
     static char currentPlayer = 'O';
-    
+    static string playerName1;
+    static string currentPlayerName;
 
     static void Main(string[] args)
     {
         Console.WriteLine("Inserisci il nome del giocatore");
-        string? playerName1 = Console.ReadLine();
+        playerName1 = Console.ReadLine();
+        currentPlayerName = playerName1;
+
+        StartNewGame();
+    }
+
+    static void StartNewGame()
+    {
+        CreateBoard();
+        currentPlayer = 'O';
         string? currentPlayerName = playerName1;
+        string choice = "";
 
         CreateBoard();
         bool IsGameWon = false;
 
-        while(!IsGameWon && !IsBoardFull())
+        while (!IsGameWon && !IsBoardFull() && choice != "0")
         {
             PrintBoard();
-            if(currentPlayer == 'X')
+            if (currentPlayer == 'X')
             {
                 var move = AIMove();
                 board[move.row, move.col] = currentPlayer;
@@ -37,14 +48,36 @@ class Program
         {
             SwitchPlayer(ref currentPlayerName, playerName1);
             Console.WriteLine($"Giocatore {currentPlayerName} ha vinto!");
-            Console.WriteLine("Premi un tasto per continuare");
-            Console.ReadLine();
+            Console.WriteLine("Inserisci un opazione");
+            Console.WriteLine("1. Nuova partita");
+            Console.WriteLine("0. Esci");
         }
         else
         {
             Console.WriteLine("La partita finisce in parità");
-            Console.WriteLine("Premi un tasto per continuare");
-            Console.ReadLine();
+            Console.WriteLine("Scegli un opazione");
+            Console.WriteLine("1. Nuova partita");
+            Console.WriteLine("2. Esci");
+        }
+        choice = Console.ReadLine();
+
+        while (true)
+        {
+            if (choice == "1")
+            {
+                StartNewGame();
+                break;
+            }
+            else if (choice == "0")
+            {
+                Console.WriteLine("Arrivederci");
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Opzione inserita non valida, scegli 1 per una nuova partita, scegli 0 per uscire");
+                choice = Console.ReadLine();
+            }
         }
     }
 
