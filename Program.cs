@@ -10,8 +10,6 @@ class Program
     {
         Console.WriteLine("Inserisci il nome del giocatore A");
         string? playerName1 = Console.ReadLine();
-        Console.WriteLine("Inserisci il nome del giocatore B");
-        string? playerName2 = Console.ReadLine();
         string? currentPlayerName = playerName1;
 
         CreateBoard();
@@ -20,21 +18,33 @@ class Program
         while(!IsGameWon && !IsBoardFull())
         {
             PrintBoard();
-            PlayerMove(currentPlayerName);
+            if(currentPlayer == 'X')
+            {
+                var move = AIMove();
+                board[move.row, move.col] = currentPlayer;
+            }
+            else
+            {
+                PlayerMove(playerName1);
+            }
             IsGameWon = CheckWin();
-            SwitchPlayer(ref currentPlayerName, playerName1, playerName2);
+            SwitchPlayer(ref currentPlayerName, playerName1);
         }
 
         PrintBoard();
 
         if (IsGameWon)
         {
-            SwitchPlayer(ref currentPlayerName, playerName1, playerName2);
+            SwitchPlayer(ref currentPlayerName, playerName1);
             Console.WriteLine($"Giocatore {currentPlayerName} ha vinto!");
+            Console.WriteLine("Premi un tasto per continuare");
+            Console.ReadLine();
         }
         else
         {
             Console.WriteLine("La partita finisce in parità");
+            Console.WriteLine("Premi un tasto per continuare");
+            Console.ReadLine();
         }
     }
 
@@ -87,10 +97,10 @@ class Program
         return true;
     }
 
-    static void SwitchPlayer(ref string currentName, string name1, string name2)
+    static void SwitchPlayer(ref string currentName, string name1)
     {
         currentPlayer = currentPlayer == 'O' ? 'X' : 'O';
-        currentName = currentName == name1 ? name2 : name1;
+        currentName = currentName == name1 ? "Computer" : name1;
     }
 
     static void PlayerMove(string name)
@@ -156,6 +166,78 @@ class Program
         return false;
     }
 
-    
+    static int Minimax(bool isMaximizing)
+    {
+        if (CheckWin())
+        {
+            return isMaximizing ? -1 : 1;
+        }
+
+        if (IsBoardFull())
+        {
+            return 0;
+        }
+
+        if (isMaximizing)
+        {
+            int bestScore = int.MinValue;
+            for(int row = 0; row < 3; row++)
+            {
+                for(int col = 0; col < 3; col++)
+                {
+                    if (board[row, col] == ' ')
+                    {
+                        board[row, col] = currentPlayer;
+                        int score = Minimax(false);
+                        board[row, col] = ' ';
+                        bestScore = Math.Max(bestScore, score);
+                    }
+                }
+            }
+            return bestScore;
+        }
+        else
+        {
+            int bestScore = int.MaxValue;
+            for (int row = 0; row < 3; row++){
+                for(int col = 0; col < 3; col++)
+                {
+                    if (board[row, col] == ' ')
+                    {
+                        board[row, col] = currentPlayer;
+                        int score = Minimax(true);
+                        board[row, col] = ' ';
+                        bestScore = Math.Min(bestScore, score);
+                    }
+                }
+            }
+            currentPlayer = currentPlayer == 'A' ? 'O' : 'X';
+            return bestScore;
+        }
+    }
+
+    static (int row, int col) AIMove()
+    {
+        int bestScore = int.MinValue;
+        (int row, int col) bestMove = (-1, -1);
+        for(int row = 0; row < 3; row++)
+        {
+            for(int col =0; col < 3; col++)
+            {
+                if (board[row, col] == ' ')
+                {
+                    board[row, col] = currentPlayer;
+                    int score = Minimax(false);
+                    board[row, col] = ' ';
+                    if(score > bestScore)
+                    {
+                        bestScore = score;
+                        bestMove = (row, col);
+                    }
+                }
+            }
+        }
+        return bestMove;
+    }
 }
 
