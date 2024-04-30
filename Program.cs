@@ -8,7 +8,7 @@ class Program
 
     static void Main(string[] args)
     {
-        Console.WriteLine("Inserisci il nome del giocatore A");
+        Console.WriteLine("Inserisci il nome del giocatore");
         string? playerName1 = Console.ReadLine();
         string? currentPlayerName = playerName1;
 
@@ -166,7 +166,56 @@ class Program
         return false;
     }
 
-    static int Minimax(bool isMaximizing)
+    static int AlphaBeta(char[,] board, int count, int alpha, int beta, bool isMaximizing)
+    {
+        if (CheckWin()) 
+        {
+            return isMaximizing ? -1 : 1; 
+        }
+
+        if (IsBoardFull()) 
+        {
+            return 0; 
+        }
+
+        int bestScore = isMaximizing ? int.MinValue : int.MaxValue;
+
+        for (int row = 0; row < 3; row++)
+        {
+            for (int col = 0; col < 3; col++)
+            {
+                if (board[row, col] == ' ')
+                {
+                    board[row, col] = isMaximizing ? 'X' : 'O';
+
+                    int score = AlphaBeta(board, count + 1, alpha, beta, !isMaximizing);
+
+                    board[row, col] = ' ';
+
+                    if (isMaximizing)
+                    {
+                        bestScore = Math.Max(bestScore, score);
+                        alpha = Math.Max(alpha, score);
+                    }
+                    else
+                    {
+                        bestScore = Math.Min(bestScore, score);
+                        beta = Math.Min(beta, score);
+                    }
+
+                    if (beta <= alpha)
+                    {
+                        return bestScore;
+                    }
+                }
+            }
+        }
+
+        return bestScore;
+    }
+
+
+    static int Minimax(bool isMaximizing) // Poco efficente, sostituita con AlphaBeta()
     {
         if (CheckWin())
         {
@@ -226,8 +275,8 @@ class Program
             {
                 if (board[row, col] == ' ')
                 {
-                    board[row, col] = currentPlayer;
-                    int score = Minimax(false);
+                    board[row, col] = 'X';
+                    int score = AlphaBeta(board, 0, int.MinValue, int.MaxValue, false);
                     board[row, col] = ' ';
                     if(score > bestScore)
                     {
